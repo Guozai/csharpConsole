@@ -5,7 +5,16 @@ namespace Assignment1
 {
     public abstract class Person
     {
-        private String UserID, Name, Email;
+        public Person(string userID, string name, string email)
+        {
+            UserID = userID;
+            Name = name;
+            Email = email;
+        }
+
+        public string UserID { get; }
+        public string Name { get; }
+        public string Email { get; }
     }
     public class Staff : Person
     {
@@ -17,8 +26,14 @@ namespace Assignment1
     }
     public class Slot
     {
-        private String RoomID;
-        private DateTime dateTime;
+        public Slot(string roomID, DateTime slotDateTime)
+        {
+            RoomID = roomID;
+            SlotDateTime = slotDateTime;
+        }
+
+        public string RoomID { get; set; }
+        public DateTime SlotDateTime { get; set; }
     }
     public class Program
     {
