@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Assignment1
 {
@@ -18,11 +18,11 @@ namespace Assignment1
     }
     public class Staff : Person
     {
-
+        public Staff(string userID, string name, string email) : base (userID, name, email) { }
     }
     public class Student : Person
     {
-
+        public Student(string userID, string name, string email) : base (userID, name, email) { }
     }
     public class Slot
     {
@@ -37,13 +37,16 @@ namespace Assignment1
     }
     public class Program
     {
-        void Initialize()
+        public static void Initialize()
         {
             List<Staff> staffs = new List<Staff>();
+            staffs.Add(new Staff("e12345", "Matt", "e12345@rmit.edu.au"));
+            staffs.Add(new Staff("e56789", "Joe", "e56789@rmit.edu.au"));
         }
 
         static void Main(string[] args)
         {
+            Initialize();
 
             Console.WriteLine("Hello World!");
         }
