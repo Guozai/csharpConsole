@@ -34,25 +34,25 @@ namespace Assignment1
     public class Slot
     {
         public string RoomID { get; set; }
-        public string Time { get; set; }
+        public DateTime SlotDateTime { get; set; }
         public string StaffID { get; set; }
         public string StudentID { get; set; }
 
-        public Slot(string roomID, string time, string staffID)
+        public Slot(string roomID, DateTime slotDateTime, string staffID)
         {
             RoomID = roomID;
-            Time = time;
+            SlotDateTime = slotDateTime;
             StaffID = staffID;
         }
 
-        public string AddHour(string time)
-        {
-            char[] seps = { ':' };
-            string[] parts = time.Split(seps);
-            if (int.TryParse(parts[0], out var hh))
-                parts[0] = (hh + 1).ToString();
-            return String.Join(":", parts);
-        }
+        //public string AddHour(string time)
+        //{
+        //    char[] seps = { ':' };
+        //    string[] parts = time.Split(seps);
+        //    if (int.TryParse(parts[0], out var hh))
+        //        parts[0] = (hh + 1).ToString();
+        //    return String.Join(":", parts);
+        //}
     }
 
     //public class Room
@@ -102,6 +102,16 @@ namespace Assignment1
                 Rooms = table.Select().Select(x => (string)x["RoomID"]).ToList();
                 //Rooms = table.Select().Select(x => new Room((string)x["RoomID"])).ToList();
                 //Rooms = new List<string>() { "A", "B", "C", "D"};
+
+                table.Clear();
+                // Retrieve Slot List
+                command.CommandText = "select * from Slot";
+                new SqlDataAdapter(command).Fill(table);
+                if (table != null)
+                    Slots = table.Select().Select(x =>
+                        new Slot((string)x["RoomID"], (DateTime)x["StartTime"], (string)x["StaffID"])).ToList();
+                else
+                    Slots = new List<Slot>();
             }
         }
 
@@ -206,16 +216,18 @@ namespace Assignment1
                 parts = input.Split(seps);
             }
 
-            //DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             Console.WriteLine();
             Console.WriteLine($"Slots on {input}:");
             Console.WriteLine("\t{0,-15}{1,-15}{2,-15}{3,-15}{4}", "Room name", "Start time", "End time", "Staff ID", "Bookings");
 
-            if (input.Equals("30-01-2019") && initializer.Slots != null)
+            DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            var slots = initializer.Slots.Where(x => x.SlotDateTime.Date == date).ToList();
+            if (slots.Any())
             {
-                foreach ( var slot in initializer.Slots)
+                foreach ( var slot in slots)
                 {
-                    Console.Write("\t{0,-15}{1,-15}{2,-15}{3,-15}", slot.RoomID, slot.Time, slot.AddHour(slot.Time), slot.StaffID);
+                    Console.Write("\t{0,-15}{1,-15}{2,-15}{3,-15}", slot.RoomID, slot.SlotDateTime, 
+                        slot.SlotDateTime.AddHours(1), slot.StaffID);
                     if (slot.StudentID == null)
                         Console.WriteLine("-");
                     else
@@ -311,19 +323,21 @@ namespace Assignment1
                 parts = input.Split(seps);
             }
 
-            DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
             Console.WriteLine();
             Console.WriteLine($"Rooms available on {input}:"); 
             Console.WriteLine("\tRoom name");
 
-            if (initializer.Slots == null)
+            DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            var slots = initializer.Slots.Where(x => x.SlotDateTime.Date == date).ToList();
+            if (slots.Any())
             {
-                foreach ( var room in initializer.Rooms)
+                foreach (var room in initializer.Rooms)
                 {
-                    Console.WriteLine($"\t{room}");
+                    var count = slots.Count(x => x.RoomID.Equals(room));
+                    if (count < 2)
+                        Console.WriteLine($"\t{room}");
                 }
             }
-            //Console.Write("\tA\n\tB\n\tC\n\tD\n");
         }
 
         private void CreateSlot()
@@ -395,7 +409,7 @@ namespace Assignment1
 
             Console.WriteLine();
             // Parse the DateTime
-            //DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
 
             // Check the business rules
             int countStaff = 0;
@@ -410,10 +424,10 @@ namespace Assignment1
                         countSlot++;
                 }
             }
-            if (date.Equals("30-01-2019") && countStaff < 4 && countSlot < 2)
+            if (countStaff < 4 && countSlot < 2)
             {
                 // Create the Slot
-                initializer.AddSlot(new Slot(name, time, staffID));
+                initializer.AddSlot(new Slot(name, dateTime, staffID));
                 Console.WriteLine("Slot created successfully.");
             }
             else
@@ -460,25 +474,25 @@ namespace Assignment1
                 time = Console.ReadLine();
                 partsTime = time.Split(sepsTime);
             }
-
             Console.WriteLine();
-            if (date.Equals("30-01-2019"))
+
+            // Parse the DateTime
+            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+            var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
+            if (slots.Any())
             {
-                foreach ( var slot in initializer.Slots)
+                foreach ( var slot in slots)
                 {
-                    if (slot.Time.Equals(time))
+                    if (slot.StudentID == null)
                     {
-                        if (slot.StudentID == null)
-                        {
-                            initializer.Slots.Remove(slot);
-                            Console.WriteLine("Slot removed successfully.");
-                            return;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Unable to remove slot.");
-                            return;
-                        }
+                        initializer.Slots.Remove(slot);
+                        Console.WriteLine("Slot removed successfully.");
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Unable to remove slot.");
+                        return;
                     }
                 }
             }
@@ -597,9 +611,9 @@ namespace Assignment1
                 if (slot.StaffID.Equals(staffID))
                     availabilities.Add(slot);
             }
-            List<Slot> sortedList = availabilities.OrderBy(x => x.Time).ToList();
+            List<Slot> sortedList = availabilities.OrderBy(x => x.SlotDateTime).ToList();
             foreach ( var slot in sortedList)
-                Console.WriteLine("\t{0,-15}{1,-12}{2}", slot.RoomID, slot.Time, slot.AddHour(slot.Time));
+                Console.WriteLine("\t{0,-15}{1,-12}{2}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
         }
 
         private void MakeBooking()
@@ -616,18 +630,18 @@ namespace Assignment1
             }
 
             Console.Write("Enter date for slot (dd-mm-yyyy): ");
-            var date = Console.ReadLine();
+            var dateString = Console.ReadLine();
 
             // Retrieve the dd mm yyyy parts
             char[] seps = { '-', '-' };
-            string[] parts = date.Split(seps);
+            string[] parts = dateString.Split(seps);
             while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
                 || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
                 || !int.TryParse(parts[2], out var yyyy))
             {
                 Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                date = Console.ReadLine();
-                parts = date.Split(seps);
+                dateString = Console.ReadLine();
+                parts = dateString.Split(seps);
             }
 
             Console.Write("Enter time for slot (hh:mm): ");
@@ -667,15 +681,77 @@ namespace Assignment1
             Console.WriteLine();
 
             // If the student hasn't booked on the day
-            //foreach (var slot in initializer.Slots)
-            //{
-            //    if (slot.Time)
-            //}
+            DateTime date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            var count = initializer.Slots.Count(x => x.SlotDateTime.Date == date && x.StudentID == studentID);
+
+            if (count == 0)
+            {
+                DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+                var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
+                foreach (var slot in slots)
+                {
+                    slot.StudentID = studentID;
+                    Console.WriteLine("Slot booked successfully.");
+                }
+            }
+            else
+                Console.WriteLine("Unable to book slot.");
         }
 
         private void CancelBooking()
         {
+            Console.WriteLine();
+            Console.WriteLine("--- Cancel booking ---");
+            Console.Write("Enter room name: ");
+            var name = Console.ReadLine();
 
+            while (!initializer.Rooms.Contains(name))
+            {
+                Console.Write("Invalid room name. Enter room name: ");
+                name = Console.ReadLine();
+            }
+
+            Console.Write("Enter date for slot (dd-mm-yyyy): ");
+            var dateString = Console.ReadLine();
+
+            // Retrieve the dd mm yyyy parts
+            char[] seps = { '-', '-' };
+            string[] parts = dateString.Split(seps);
+            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
+                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
+                || !int.TryParse(parts[2], out var yyyy))
+            {
+                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
+                dateString = Console.ReadLine();
+                parts = dateString.Split(seps);
+            }
+
+            Console.Write("Enter time for slot (hh:mm): ");
+            var time = Console.ReadLine();
+
+            // Retrieve the hh mm parts
+            char[] sepsTime = { ':' };
+            string[] partsTime = time.Split(sepsTime);
+            while (partsTime.Length != 2 || !int.TryParse(partsTime[0], out var hh) || !(hh >= 9 && hh <= 14)
+                || !int.TryParse(partsTime[1], out var mm) || mm != 0)
+            {
+                Console.Write("Invalid input, must be (hh:mm) format and between 9:00 and 14:00: ");
+                time = Console.ReadLine();
+                partsTime = time.Split(sepsTime);
+            }
+
+            DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+            var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
+            if (slots.Any())
+            {
+                foreach (var slot in slots)
+                {
+                    initializer.Slots.Remove(slot);
+                    Console.WriteLine("Slot cancelled successfully.");
+                }
+            }
+            else
+                Console.WriteLine("Unable to cancel slot.");
         }
     }
 
