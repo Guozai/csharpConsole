@@ -7,19 +7,19 @@ using System.Linq;
 // http://csharpindepth.com/Articles/General/Singleton.aspx
 namespace Assignment1
 {
-    public sealed class Initializer
+    public sealed class DatabaseOperation
     {
         public List<Staff> Staffs { get; }
         public List<Student> Students { get; }
         public List<string> Rooms { get; }
         public List<Slot> Slots { get; private set; }
 
-        private static readonly Lazy<Initializer> lazy =
-        new Lazy<Initializer>(() => new Initializer());
+        private static readonly Lazy<DatabaseOperation> lazy =
+        new Lazy<DatabaseOperation>(() => new DatabaseOperation());
 
-        public static Initializer Instance { get { return lazy.Value; } }
+        public static DatabaseOperation Instance { get { return lazy.Value; } }
 
-        private Initializer()
+        private DatabaseOperation()
         {
             using (var connection = new SqlConnection(Program.ConnectionString))
             {

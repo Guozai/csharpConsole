@@ -7,7 +7,7 @@ namespace Assignment1
 {
     public class Menu
     {
-        private Initializer initializer { get; } = Initializer.Instance;
+        private DatabaseOperation databaseOperation { get; } = DatabaseOperation.Instance;
 
         public void Start()
         {
@@ -31,7 +31,7 @@ namespace Assignment1
             switch (input)
             {
                 case "1":
-                    ListRoom(initializer.Rooms);
+                    ListRoom(databaseOperation.Rooms);
                     MainMenu();
                     break;
                 case "2":
@@ -91,7 +91,7 @@ namespace Assignment1
             Console.WriteLine("\t{0,-15}{1,-15}{2,-15}{3,-15}{4}", "Room name", "Start time", "End time", "Staff ID", "Bookings");
 
             DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var slots = initializer.Slots.Where(x => x.SlotDateTime.Date == date).ToList();
+            var slots = databaseOperation.Slots.Where(x => x.SlotDateTime.Date == date).ToList();
             if (slots.Any())
             {
                 foreach (var slot in slots)
@@ -123,7 +123,7 @@ namespace Assignment1
             switch (input)
             {
                 case "1":
-                    ListStaff(initializer.Staffs);
+                    ListStaff(databaseOperation.Staffs);
                     StaffMenu();
                     break;
                 case "2":
@@ -186,10 +186,10 @@ namespace Assignment1
             Console.WriteLine("\tRoom name");
 
             DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var slots = initializer.Slots.Where(x => x.SlotDateTime.Date == date).ToList();
+            var slots = databaseOperation.Slots.Where(x => x.SlotDateTime.Date == date).ToList();
             if (slots.Any())
             {
-                foreach (var room in initializer.Rooms)
+                foreach (var room in databaseOperation.Rooms)
                 {
                     var count = slots.Count(x => x.RoomID.Equals(room));
                     if (count < 2)
@@ -216,9 +216,9 @@ namespace Assignment1
             // Check the business rules
             int countStaff = 0;
             int countSlot = 0;
-            if (initializer.Slots != null)
+            if (databaseOperation.Slots != null)
             {
-                foreach (var slot in initializer.Slots)
+                foreach (var slot in databaseOperation.Slots)
                 {
                     if (slot.StaffID.Equals(staffID))
                         countStaff++;
@@ -230,9 +230,9 @@ namespace Assignment1
             {
                 // Create the Slot
                 Slot slot = new Slot(name, dateTime, staffID);
-                initializer.AddSlot(slot);
+                databaseOperation.AddSlot(slot);
                 // Add slot to database
-                initializer.Add(slot);
+                databaseOperation.Add(slot);
                 Console.WriteLine("Slot created successfully.");
             }
             else
@@ -252,16 +252,16 @@ namespace Assignment1
 
             // Parse the DateTime
             DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-            var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
+            var slots = databaseOperation.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
             if (slots.Any())
             {
                 foreach (var slot in slots)
                 {
                     if (slot.StudentID == null)
                     {
-                        initializer.Slots.Remove(slot);
+                        databaseOperation.Slots.Remove(slot);
                         // Delete slot from database
-                        initializer.Delete(slot);
+                        databaseOperation.Delete(slot);
                         Console.WriteLine("Slot removed successfully.");
                         return;
                     }
@@ -289,7 +289,7 @@ namespace Assignment1
             switch (input)
             {
                 case "1":
-                    ListStudent(initializer.Students);
+                    ListStudent(databaseOperation.Students);
                     StudentMenu();
                     break;
                 case "2":
@@ -351,7 +351,7 @@ namespace Assignment1
             Console.WriteLine("\t{0,-15}{1,-12}{2}", "Room name", "Start time", "End time");
 
             List<Slot> availabilities = new List<Slot>();
-            foreach (var slot in initializer.Slots)
+            foreach (var slot in databaseOperation.Slots)
             {
                 if (slot.StaffID.Equals(staffID))
                     availabilities.Add(slot);
@@ -375,12 +375,12 @@ namespace Assignment1
 
             // If the student hasn't booked on the day
             DateTime date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var count = initializer.Slots.Count(x => x.SlotDateTime.Date == date && x.StudentID == studentID);
+            var count = databaseOperation.Slots.Count(x => x.SlotDateTime.Date == date && x.StudentID == studentID);
 
             if (count == 0)
             {
                 DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-                var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
+                var slots = databaseOperation.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
                 if (slots.Any())
                 {
                     foreach (var slot in slots)
@@ -389,7 +389,7 @@ namespace Assignment1
                         {
                             slot.StudentID = studentID;
                             // Update the slot in database
-                            initializer.Update(slot);
+                            databaseOperation.Update(slot);
                             Console.WriteLine("Slot booked successfully.");
                             return;
                         }
@@ -410,16 +410,16 @@ namespace Assignment1
             var time = EnterTime();
 
             DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-            var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
+            var slots = databaseOperation.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
             if (slots.Any())
             {
-                foreach (var slot in initializer.Slots)
+                foreach (var slot in databaseOperation.Slots)
                 {
                     if (slot.SlotDateTime == dateTime && slot.RoomID.Equals(name))
                     {
                         slot.StudentID = null;
                         // Update the slot in databse
-                        initializer.Update(slot);
+                        databaseOperation.Update(slot);
                         Console.WriteLine("Slot cancelled successfully.");
                     }
                 }
@@ -437,7 +437,7 @@ namespace Assignment1
             Console.Write("Enter room name: ");
             var name = Console.ReadLine();
 
-            while (!initializer.Rooms.Contains(name))
+            while (!databaseOperation.Rooms.Contains(name))
             {
                 Console.Write("Invalid room name. Enter room name: ");
                 name = Console.ReadLine();
@@ -491,7 +491,7 @@ namespace Assignment1
             bool hasStaff = false;
             do
             {
-                foreach (var staff in initializer.Staffs)
+                foreach (var staff in databaseOperation.Staffs)
                 {
                     if (staff.UserID.Equals(staffID))
                     {
@@ -516,7 +516,7 @@ namespace Assignment1
             bool hasStudent = false;
             do
             {
-                foreach (var student in initializer.Students)
+                foreach (var student in databaseOperation.Students)
                 {
                     if (student.UserID.Equals(studentID))
                     {
