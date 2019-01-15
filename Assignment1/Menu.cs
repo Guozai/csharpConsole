@@ -7,7 +7,7 @@ namespace Assignment1
 {
     public class Menu
     {
-        private Initializer initializer { get; } = new Initializer();
+        private Initializer initializer { get; } = Initializer.Instance;
 
         public void Start()
         {

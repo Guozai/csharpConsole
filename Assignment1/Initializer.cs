@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-//using Microsoft.Extensions.Configuration;
 
+// http://csharpindepth.com/Articles/General/Singleton.aspx
 namespace Assignment1
 {
-    public class Initializer
+    public sealed class Initializer
     {
         public List<Staff> Staffs { get; }
         public List<Student> Students { get; }
         public List<string> Rooms { get; }
         public List<Slot> Slots { get; private set; }
 
-        public Initializer()
+        private static readonly Lazy<Initializer> lazy =
+        new Lazy<Initializer>(() => new Initializer());
+
+        public static Initializer Instance { get { return lazy.Value; } }
+
+        private Initializer()
         {
             using (var connection = new SqlConnection(Program.ConnectionString))
             {
