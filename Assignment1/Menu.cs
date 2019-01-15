@@ -108,7 +108,7 @@ namespace Assignment1
             {
                 foreach (var slot in slots)
                 {
-                    Console.Write("\t{0,-15}{1,-15}{2,-15}{3,-15}", slot.RoomID, slot.SlotDateTime,
+                    Console.Write("\t{0,-15}{1,-15:hh:mm}{2,-15:hh:mm}{3,-15}", slot.RoomID, slot.SlotDateTime,
                         slot.SlotDateTime.AddHours(1), slot.StaffID);
                     if (slot.StudentID == null)
                         Console.WriteLine("-");
@@ -309,7 +309,10 @@ namespace Assignment1
             if (countStaff < 4 && countSlot < 2)
             {
                 // Create the Slot
-                initializer.AddSlot(new Slot(name, dateTime, staffID));
+                Slot slot = new Slot(name, dateTime, staffID);
+                initializer.AddSlot(slot);
+                // Add slot to database
+                initializer.Add(slot);
                 Console.WriteLine("Slot created successfully.");
             }
             else
@@ -368,6 +371,8 @@ namespace Assignment1
                     if (slot.StudentID == null)
                     {
                         initializer.Slots.Remove(slot);
+                        // Delete slot from database
+                        initializer.Delete(slot);
                         Console.WriteLine("Slot removed successfully.");
                         return;
                     }
@@ -495,7 +500,7 @@ namespace Assignment1
             }
             List<Slot> sortedList = availabilities.OrderBy(x => x.SlotDateTime).ToList();
             foreach (var slot in sortedList)
-                Console.WriteLine("\t{0,-15}{1,-12}{2}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
+                Console.WriteLine("\t{0,-15}{1,-12:hh:mm}{2:hh:mm}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
         }
 
         private void MakeBooking()
@@ -577,7 +582,8 @@ namespace Assignment1
                         if (slot.StudentID == null)
                         {
                             slot.StudentID = studentID;
-                            initializer.Update();
+                            // Update the slot in database
+                            initializer.Update(slot);
                             Console.WriteLine("Slot booked successfully.");
                             return;
                         }
@@ -638,7 +644,8 @@ namespace Assignment1
                     if (slot.SlotDateTime == dateTime && slot.RoomID.Equals(name))
                     {
                         slot.StudentID = null;
-                        initializer.Update();
+                        // Update the slot in databse
+                        initializer.Update(slot);
                         Console.WriteLine("Slot cancelled successfully.");
                     }
                 }

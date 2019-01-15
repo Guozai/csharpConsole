@@ -62,19 +62,55 @@ namespace Assignment1
             Slots.Add(slot);
         }
 
-        public void Add()
+        public void Add(Slot slot)
         {
+            using (var connection = new SqlConnection(Program.ConnectionString))
+            {
+                connection.Open();
 
+                var command = connection.CreateCommand();
+                command.CommandText =
+                    "insert into Slot values (@roomID, @startTime, @staffID, null)";
+                command.Parameters.AddWithValue("roomID", slot.RoomID);
+                command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
+                command.Parameters.AddWithValue("staffID", slot.StaffID);
+                //command.Parameters.AddWithValue("studentID", slot.StudentID);
+
+                command.ExecuteNonQuery();
+            }
         }
 
-        public void Delete()
+        public void Delete(Slot slot)
         {
+            using (var connection = new SqlConnection(Program.ConnectionString))
+            {
+                connection.Open();
 
+                var command = connection.CreateCommand();
+                command.CommandText =
+                    "delete from Slot where RoomID = @roomID and StartTime = @startTime";
+                command.Parameters.AddWithValue("roomID", slot.RoomID);
+                command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
+
+                command.ExecuteNonQuery();
+            }
         }
 
-        public void Update()
+        public void Update(Slot slot)
         {
+            using (var connection = new SqlConnection(Program.ConnectionString))
+            {
+                connection.Open();
 
+                var command = connection.CreateCommand();
+                command.CommandText =
+                    "update Slot set BookedInStudentID = @studentID where RoomID = @roomID and StartTime = @startTime";
+                command.Parameters.AddWithValue("studentID", slot.StudentID);
+                command.Parameters.AddWithValue("roomID", slot.RoomID);
+                command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
+
+                command.ExecuteNonQuery();
+            }
         }
     }
 }
