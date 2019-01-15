@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 
-namespace InventoryPriceManagement
+namespace Assignment1
 {
     public static class MiscellaneousExtensionUtilities
     {

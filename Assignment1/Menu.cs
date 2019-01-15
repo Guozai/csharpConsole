@@ -17,7 +17,7 @@ namespace Assignment1
             MainMenu();
         }
 
-        public void MainMenu()
+        private void MainMenu()
         {
             MainMenuContent();
 
@@ -66,7 +66,7 @@ namespace Assignment1
             Console.Write("Enter option: ");
         }
 
-        public void ListRoom(List<string> rooms)
+        private void ListRoom(List<string> rooms)
         {
             Console.WriteLine();
             Console.WriteLine("--- List rooms ---");
@@ -78,25 +78,13 @@ namespace Assignment1
             }
         }
 
-        public void ListSlot()
+        private void ListSlot()
         {
             Console.WriteLine();
             Console.WriteLine("--- List slots ---");
-            Console.Write("Enter date for slots (dd-mm-yyyy): ");
-            var input = Console.ReadLine();
+            Console.WriteLine("Enter date for slots (dd-mm-yyyy): ");
 
-            // Retrieve the dd mm yyyy parts
-            char[] seps = { '-', '-' };
-            string[] parts = input.Split(seps);
-
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                input = Console.ReadLine();
-                parts = input.Split(seps);
-            }
+            var input = EnterDate();
 
             Console.WriteLine();
             Console.WriteLine($"Slots on {input}:");
@@ -121,7 +109,7 @@ namespace Assignment1
 
         }
 
-        public void StaffMenu()
+        private void StaffMenu()
         {
             StaffMenuContent();
 
@@ -190,20 +178,8 @@ namespace Assignment1
             Console.WriteLine();
             Console.WriteLine("--- Room availability ---");
             Console.Write("Enter date for room availability (dd-mm-yyyy): ");
-            var input = Console.ReadLine();
 
-            // Retrieve the dd mm yyyy parts
-            char[] seps = { '-', '-' };
-            string[] parts = input.Split(seps);
-
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                input = Console.ReadLine();
-                parts = input.Split(seps);
-            }
+            var input = EnterDate();
 
             Console.WriteLine();
             Console.WriteLine($"Rooms available on {input}:");
@@ -226,72 +202,16 @@ namespace Assignment1
         {
             Console.WriteLine();
             Console.WriteLine("--- Create slot ---");
-            Console.Write("Enter room name: ");
-            var name = Console.ReadLine();
-
-            while (!initializer.Rooms.Contains(name))
-            {
-                Console.Write("Invalid room name. Enter room name: ");
-                name = Console.ReadLine();
-            }
-
+            var name = EnterName();
             Console.Write("Enter date for slot (dd-mm-yyyy): ");
-            var date = Console.ReadLine();
-
-            // Retrieve the dd mm yyyy parts
-            char[] seps = { '-', '-' };
-            string[] parts = date.Split(seps);
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                date = Console.ReadLine();
-                parts = date.Split(seps);
-            }
-
+            var date = EnterDate();
             Console.Write("Enter time for slot (hh:mm): ");
-            var time = Console.ReadLine();
-
-            // Retrieve the hh mm parts
-            char[] sepsTime = { ':' };
-            string[] partsTime = time.Split(sepsTime);
-            while (partsTime.Length != 2 || !int.TryParse(partsTime[0], out var hh) || !(hh >= 9 && hh <= 14)
-                || !int.TryParse(partsTime[1], out var mm) || mm != 0)
-            {
-                Console.Write("Invalid input, must be (hh:mm) format and between 9:00 and 14:00: ");
-                time = Console.ReadLine();
-                partsTime = time.Split(sepsTime);
-            }
-
-            Console.Write("Enter staff ID: ");
-            var staffID = Console.ReadLine();
-            bool hasStaff = false;
-            do
-            {
-                foreach (var staff in initializer.Staffs)
-                {
-                    if (staff.UserID.Equals(staffID))
-                    {
-                        hasStaff = true;
-                        break;
-                    }
-                }
-                if (!hasStaff)
-                {
-                    Console.Write("Wrong Input. Enter staff ID: ");
-                    staffID = Console.ReadLine();
-                }
-            } while (!hasStaff);
-            //while (!staffID.StartsWith('e') || staffID.Length != 6)
-            //{
-            //    Console.Write("Wrong Input. Enter staff ID: ");
-            //    staffID = Console.ReadLine();
-            //}
-
+            var time = EnterTime();
+            var staffID = EnterStaffID();
             Console.WriteLine();
+
             // Parse the DateTime
-            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
 
             // Check the business rules
             int countStaff = 0;
@@ -323,46 +243,15 @@ namespace Assignment1
         {
             Console.WriteLine();
             Console.WriteLine("--- Remove slot ---");
-            Console.Write("Enter room name: ");
-            var name = Console.ReadLine();
-            while (!initializer.Rooms.Contains(name))
-            {
-                Console.Write("Invalid room name. Enter room name: ");
-                name = Console.ReadLine();
-            }
-
+            var name = EnterName();
             Console.Write("Enter date for slot (dd-mm-yyyy): ");
-            var date = Console.ReadLine();
-
-            // Retrieve the dd mm yyyy parts
-            char[] seps = { '-', '-' };
-            string[] parts = date.Split(seps);
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                date = Console.ReadLine();
-                parts = date.Split(seps);
-            }
-
+            var date = EnterDate();
             Console.Write("Enter time for slot (hh:mm): ");
-            var time = Console.ReadLine();
-
-            // Retrieve the hh mm parts
-            char[] sepsTime = { ':' };
-            string[] partsTime = time.Split(sepsTime);
-            while (partsTime.Length != 2 || !int.TryParse(partsTime[0], out var hh) || !(hh >= 0 && hh <= 23)
-                || !int.TryParse(partsTime[1], out var mm) || mm != 0)
-            {
-                Console.Write("Invalid input, either not a time or not in (hh:mm) format: ");
-                time = Console.ReadLine();
-                partsTime = time.Split(sepsTime);
-            }
+            var time = EnterTime();
             Console.WriteLine();
 
             // Parse the DateTime
-            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
             var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
             if (slots.Any())
             {
@@ -455,43 +344,12 @@ namespace Assignment1
             Console.WriteLine();
             Console.WriteLine("--- Staff availability ---");
             Console.Write("Enter date for staff availability (dd-mm-yyyy): ");
-            var date = Console.ReadLine();
-
-            char[] seps = { '-', '-' };
-            string[] parts = date.Split(seps);
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                date = Console.ReadLine();
-                parts = date.Split(seps);
-            }
-
-            Console.Write("Enter staff ID: ");
-            var staffID = Console.ReadLine();
-
-            bool hasStaff = false;
-            do
-            {
-                foreach (var staff in initializer.Staffs)
-                {
-                    if (staff.UserID.Equals(staffID))
-                    {
-                        hasStaff = true;
-                        break;
-                    }
-                }
-                if (!hasStaff)
-                {
-                    Console.Write("Wrong Input. Enter staff ID: ");
-                    staffID = Console.ReadLine();
-                }
-            } while (!hasStaff);
-
+            var date = EnterDate();
+            var staffID = EnterStaffID();
             Console.WriteLine();
             Console.WriteLine($"Staff {staffID} availability on {date}:");
             Console.WriteLine("\t{0,-15}{1,-12}{2}", "Room name", "Start time", "End time");
+
             List<Slot> availabilities = new List<Slot>();
             foreach (var slot in initializer.Slots)
             {
@@ -507,64 +365,12 @@ namespace Assignment1
         {
             Console.WriteLine();
             Console.WriteLine("--- Make booking ---");
-            Console.Write("Enter room name: ");
-            var name = Console.ReadLine();
-
-            while (!initializer.Rooms.Contains(name))
-            {
-                Console.Write("Invalid room name. Enter room name: ");
-                name = Console.ReadLine();
-            }
-
+            var name = EnterName();
             Console.Write("Enter date for slot (dd-mm-yyyy): ");
-            var dateString = Console.ReadLine();
-
-            // Retrieve the dd mm yyyy parts
-            char[] seps = { '-', '-' };
-            string[] parts = dateString.Split(seps);
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                dateString = Console.ReadLine();
-                parts = dateString.Split(seps);
-            }
-
+            var dateString = EnterDate();
             Console.Write("Enter time for slot (hh:mm): ");
-            var time = Console.ReadLine();
-
-            // Retrieve the hh mm parts
-            char[] sepsTime = { ':' };
-            string[] partsTime = time.Split(sepsTime);
-            while (partsTime.Length != 2 || !int.TryParse(partsTime[0], out var hh) || !(hh >= 9 && hh <= 14)
-                || !int.TryParse(partsTime[1], out var mm) || mm != 0)
-            {
-                Console.Write("Invalid input, must be (hh:mm) format and between 9:00 and 14:00: ");
-                time = Console.ReadLine();
-                partsTime = time.Split(sepsTime);
-            }
-
-            Console.Write("Enter student ID: ");
-            var studentID = Console.ReadLine();
-            bool hasStudent = false;
-            do
-            {
-                foreach (var student in initializer.Students)
-                {
-                    if (student.UserID.Equals(studentID))
-                    {
-                        hasStudent = true;
-                        break;
-                    }
-                }
-                if (!hasStudent)
-                {
-                    Console.Write("Wrong Input. Enter student ID: ");
-                    studentID = Console.ReadLine();
-                }
-            } while (!hasStudent);
-
+            var time = EnterTime();
+            var studentID = EnterStudentID();
             Console.WriteLine();
 
             // If the student hasn't booked on the day
@@ -573,7 +379,7 @@ namespace Assignment1
 
             if (count == 0)
             {
-                DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+                DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
                 var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
                 if (slots.Any())
                 {
@@ -597,45 +403,13 @@ namespace Assignment1
         {
             Console.WriteLine();
             Console.WriteLine("--- Cancel booking ---");
-            Console.Write("Enter room name: ");
-            var name = Console.ReadLine();
-
-            while (!initializer.Rooms.Contains(name))
-            {
-                Console.Write("Invalid room name. Enter room name: ");
-                name = Console.ReadLine();
-            }
-
+            var name = EnterName();
             Console.Write("Enter date for slot (dd-mm-yyyy): ");
-            var dateString = Console.ReadLine();
-
-            // Retrieve the dd mm yyyy parts
-            char[] seps = { '-', '-' };
-            string[] parts = dateString.Split(seps);
-            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
-                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
-                || !int.TryParse(parts[2], out var yyyy))
-            {
-                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
-                dateString = Console.ReadLine();
-                parts = dateString.Split(seps);
-            }
-
+            var dateString = EnterDate();
             Console.Write("Enter time for slot (hh:mm): ");
-            var time = Console.ReadLine();
+            var time = EnterTime();
 
-            // Retrieve the hh mm parts
-            char[] sepsTime = { ':' };
-            string[] partsTime = time.Split(sepsTime);
-            while (partsTime.Length != 2 || !int.TryParse(partsTime[0], out var hh) || !(hh >= 9 && hh <= 14)
-                || !int.TryParse(partsTime[1], out var mm) || mm != 0)
-            {
-                Console.Write("Invalid input, must be (hh:mm) format and between 9:00 and 14:00: ");
-                time = Console.ReadLine();
-                partsTime = time.Split(sepsTime);
-            }
-
-            DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy hh:mm", CultureInfo.InvariantCulture);
+            DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
             var slots = initializer.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
             if (slots.Any())
             {
@@ -652,6 +426,112 @@ namespace Assignment1
 
             }
             Console.WriteLine("Unable to cancel slot.");
+        }
+
+        /// <summary>
+        /// Generic Menu Methods
+        /// </summary>
+        /// <returns>string</returns>
+        private string EnterName()
+        {
+            Console.Write("Enter room name: ");
+            var name = Console.ReadLine();
+
+            while (!initializer.Rooms.Contains(name))
+            {
+                Console.Write("Invalid room name. Enter room name: ");
+                name = Console.ReadLine();
+            }
+
+            return name;
+        }
+
+        private string EnterDate()
+        {
+            var input = Console.ReadLine();
+
+            // Retrieve the dd mm yyyy parts
+            char[] seps = { '-', '-' };
+            string[] parts = input.Split(seps);
+
+            while (parts.Length != 3 || !int.TryParse(parts[0], out var dd) || !(dd >= 1 && dd <= 31)
+                || !int.TryParse(parts[1], out var mm) || !(mm >= 1 && mm <= 12)
+                || !int.TryParse(parts[2], out var yyyy))
+            {
+                Console.Write("Invalid input, either not a date or not in (dd-mm-yyyy) format: ");
+                input = Console.ReadLine();
+                parts = input.Split(seps);
+            }
+
+            return input;
+        }
+
+        private string EnterTime()
+        {
+            var time = Console.ReadLine();
+
+            // Retrieve the hh mm parts
+            char[] sepsTime = { ':' };
+            string[] partsTime = time.Split(sepsTime);
+            while (partsTime.Length != 2 || !int.TryParse(partsTime[0], out var hh) || !(hh >= 9 && hh <= 14)
+                || !int.TryParse(partsTime[1], out var mm) || mm != 0)
+            {
+                Console.Write("Invalid input, must be (hh:mm) format and between 9:00 and 14:00: ");
+                time = Console.ReadLine();
+                partsTime = time.Split(sepsTime);
+            }
+
+            return time;
+        }
+
+        private string EnterStaffID()
+        {
+            Console.Write("Enter staff ID: ");
+            var staffID = Console.ReadLine();
+            bool hasStaff = false;
+            do
+            {
+                foreach (var staff in initializer.Staffs)
+                {
+                    if (staff.UserID.Equals(staffID))
+                    {
+                        hasStaff = true;
+                        break;
+                    }
+                }
+                if (!hasStaff)
+                {
+                    Console.Write("Wrong Input. Enter staff ID: ");
+                    staffID = Console.ReadLine();
+                }
+            } while (!hasStaff);
+
+            return staffID;
+        }
+
+        private string EnterStudentID()
+        {
+            Console.Write("Enter student ID: ");
+            var studentID = Console.ReadLine();
+            bool hasStudent = false;
+            do
+            {
+                foreach (var student in initializer.Students)
+                {
+                    if (student.UserID.Equals(studentID))
+                    {
+                        hasStudent = true;
+                        break;
+                    }
+                }
+                if (!hasStudent)
+                {
+                    Console.Write("Wrong Input. Enter student ID: ");
+                    studentID = Console.ReadLine();
+                }
+            } while (!hasStudent);
+
+            return studentID;
         }
     }
 }

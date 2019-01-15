@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿// Many places used Matthew Bolger's code from InventoryPriceManagement and 
+// Program.cs at http://coreteaching01.csit.rmit.edu.au/~e87149/wdt/
+
+using Microsoft.Extensions.Configuration;
 
 namespace Assignment1
 {
