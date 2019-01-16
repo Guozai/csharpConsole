@@ -19,4 +19,7 @@
   <ItemGroup>
     <Compile Remove="Utilities\MiscellaneousExtensionUtilities.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Menus\" />
+  </ItemGroup>
 </Project>
