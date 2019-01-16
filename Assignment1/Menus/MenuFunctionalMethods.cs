@@ -119,15 +119,19 @@ namespace Assignment1
             }
             if (countStaff < 4 && countSlot < 2)
             {
-                // Create the Slot
-                Slot slot = new Slot(name, dateTime, staffID);
-                database.AddSlot(slot);
-                // Add slot to database
-                database.Add(slot);
-                return true;
+                // If slot doesn't exist
+                var count = database.Slots.Count(x => x.RoomID.Equals(name) && x.SlotDateTime == dateTime);
+                if (count == 0)
+                {
+                    // Create the Slot
+                    Slot slot = new Slot(name, dateTime, staffID);
+                    database.AddSlot(slot);
+                    // Add slot to database
+                    database.Add(slot);
+                    return true;
+                }
             }
-            else
-                return false;
+            return false;
         }
 
         public bool RemoveSlot(string date, string time, Database database)
