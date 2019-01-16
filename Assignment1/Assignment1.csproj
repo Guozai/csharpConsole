@@ -16,4 +16,7 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Utilities\MiscellaneousExtensionUtilities.cs" />
+  </ItemGroup>
 </Project>
