@@ -57,7 +57,7 @@ namespace Assignment1
                     new SqlDataAdapter(command).Fill(table);
                     if (table != null)
                         Slots = table.Select().Select(x =>
-                            new Slot((string)x["RoomID"], (DateTime)x["StartTime"], (string)x["StaffID"])).ToList();
+                            new Slot((string)x["RoomID"], (DateTime)x["StartTime"], (string)x["StaffID"], x["BookedInStudentID"] == DBNull.Value ? null : (string)x["BookedInStudentID"])).ToList();
                     else
                         Slots = new List<Slot>();
                 }
@@ -146,7 +146,8 @@ namespace Assignment1
                     var command = connection.CreateCommand();
                     command.CommandText =
                         "update Slot set BookedInStudentID = @studentID where RoomID = @roomID and StartTime = @startTime";
-                    command.Parameters.AddWithValue("studentID", slot.StudentID);
+                    // https://stackoverflow.com/questions/16717179/how-to-insert-null-value-in-database-through-parameterized-query
+                    command.Parameters.AddWithValue("studentID", slot.StudentID ?? (object) DBNull.Value);
                     command.Parameters.AddWithValue("roomID", slot.RoomID);
                     command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
 

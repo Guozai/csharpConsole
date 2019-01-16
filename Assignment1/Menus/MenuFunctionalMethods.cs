@@ -87,15 +87,12 @@ namespace Assignment1
                 var slots = database.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
                 if (slots.Any())
                 {
-                    foreach (var slot in database.Slots)
+                    foreach (var slot in slots)
                     {
-                        if (slot.SlotDateTime == dateTime && slot.RoomID.Equals(name))
-                        {
-                            slot.StudentID = null;
-                            // Update the slot in databse
-                            database.Update(slot);
-                            return true;
-                        }
+                        slot.StudentID = null;
+                        // Update the slot in databse
+                        database.Update(slot);
+                        return true;
                     }
                 }
             }
@@ -162,7 +159,7 @@ namespace Assignment1
                     if (count == 0)
                     {
                         // Create the Slot
-                        Slot slot = new Slot(name, dateTime, staffID);
+                        Slot slot = new Slot(name, dateTime, staffID, null);
                         database.AddSlot(slot);
                         // Add slot to database
                         database.Add(slot);

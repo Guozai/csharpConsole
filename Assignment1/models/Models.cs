@@ -33,21 +33,12 @@ namespace Assignment1
         public string StaffID { get; set; }
         public string StudentID { get; set; }
 
-        public Slot(string roomID, DateTime slotDateTime, string staffID)
+        public Slot(string roomID, DateTime slotDateTime, string staffID, string studentID)
         {
             RoomID = roomID;
             SlotDateTime = slotDateTime;
             StaffID = staffID;
+            StudentID = studentID;
         }
     }
-
-    //public class Room
-    //{
-    //    public string RoomID { get; }
-
-    //    public Room(string roomID)
-    //    {
-    //        RoomID = roomID;
-    //    }
-    //}
 }
