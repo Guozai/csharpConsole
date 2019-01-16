@@ -21,7 +21,7 @@ namespace Assignment1
         {
             Console.WriteLine();
             Console.WriteLine("--- List slots ---");
-            Console.WriteLine("Enter date for slots (dd-mm-yyyy): ");
+            Console.Write("Enter date for slots (dd-mm-yyyy): ");
 
             var input = genericMethods.EnterDate();
 

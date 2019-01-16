@@ -20,7 +20,7 @@ namespace Assignment1
             List<Slot> availabilities = slots.Where(x => x.SlotDateTime.Date == date && x.StaffID.Equals(staffID)).ToList();
             List<Slot> sortedList = availabilities.OrderBy(x => x.SlotDateTime).ToList();
             foreach (var slot in sortedList)
-                Console.WriteLine("\t{0,-15}{1,-12:hh:mm}{2:hh:mm}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
+                Console.WriteLine("\t{0,-15}{1,-12:HH:mm}{2:HH:mm}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
         }
 
         ///////////////////////// Student Functional Methods ////////////////////////////////
@@ -81,13 +81,13 @@ namespace Assignment1
         public void ListSlot(string input, List<Slot> databaseSlots)
         {
             DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var slots = databaseSlots.Where(x => x.SlotDateTime.Date == date).ToList();
+            var slots = databaseSlots.Where(x => x.SlotDateTime.Date == date).OrderBy(x => x.RoomID).ToList();
 
             if (slots.Any())
             {
                 foreach (var slot in slots)
                 {
-                    Console.Write("\t{0,-15}{1,-15:hh:mm}{2,-15:hh:mm}{3,-15}", slot.RoomID, slot.SlotDateTime,
+                    Console.Write("\t{0,-15}{1,-15:HH:mm}{2,-15:HH:mm}{3,-15}", slot.RoomID, slot.SlotDateTime,
                         slot.SlotDateTime.AddHours(1), slot.StaffID);
                     if (slot.StudentID == null)
                         Console.WriteLine("-");
@@ -99,24 +99,16 @@ namespace Assignment1
                 Console.WriteLine("\t<no slots>");
         }
 
-        public bool CreateSlot(string name, string date, string time, string staffID, Database database)
+        public bool CreateSlot(string name, string dateString, string time, string staffID, Database database)
         {
             // Parse the DateTime
-            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+            var date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            var dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
 
             // Check the business rules
-            int countStaff = 0;
-            int countSlot = 0;
-            if (database.Slots != null)
-            {
-                foreach (var slot in database.Slots)
-                {
-                    if (slot.StaffID.Equals(staffID))
-                        countStaff++;
-                    if (slot.RoomID.Equals(name))
-                        countSlot++;
-                }
-            }
+            var countStaff = database.Slots.Count(x => x.SlotDateTime.Date == date && x.StaffID.Equals(staffID));
+            var countSlot = database.Slots.Count(x => x.SlotDateTime.Date == date && x.RoomID.Equals(name));
+
             if (countStaff < 4 && countSlot < 2)
             {
                 // If slot doesn't exist
