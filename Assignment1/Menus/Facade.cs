@@ -139,6 +139,7 @@ namespace Assignment1
             var date = genericMethods.EnterDate();
             Console.Write("Enter time for slot (hh:mm): ");
             var time = genericMethods.EnterTime();
+            Console.WriteLine();
 
             if (functionalMethods.CancelBooking(name, date, time, database))
                 Console.WriteLine("Slot cancelled successfully.");
