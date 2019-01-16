@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 
 // http://csharpindepth.com/Articles/General/Singleton.aspx
+// Try catch copied from example05 of week3
 namespace Assignment1
 {
     public sealed class Database
@@ -23,40 +24,51 @@ namespace Assignment1
         {
             using (var connection = new SqlConnection(Program.ConnectionString))
             {
-                // Retrieve Staff List
-                var command = connection.CreateCommand();
-                command.CommandText = "select * from [User] where [UserID] like 'e%' and len([UserID]) = 6";
+                try
+                {
+                    // Retrieve Staff List
+                    var command = connection.CreateCommand();
+                    command.CommandText = "select * from [User] where [UserID] like 'e%' and len([UserID]) = 6";
 
-                var table = new DataTable();
-                new SqlDataAdapter(command).Fill(table);
+                    var table = new DataTable();
+                    new SqlDataAdapter(command).Fill(table);
 
-                Staffs = table.Select().Select(x =>
-                    new Staff((string)x["UserID"], (string)x["Name"], (string)x["Email"])).ToList();
+                    Staffs = table.Select().Select(x =>
+                        new Staff((string)x["UserID"], (string)x["Name"], (string)x["Email"])).ToList();
 
-                table.Clear();
-                // Retrieve Student List
-                command.CommandText = "select * from [User] where [UserID] like 's%' and len([UserID]) = 8";
-                new SqlDataAdapter(command).Fill(table);
-                Students = table.Select().Select(x =>
-                    new Student((string)x["UserID"], (string)x["Name"], (string)x["Email"])).ToList();
+                    table.Clear();
+                    // Retrieve Student List
+                    command.CommandText = "select * from [User] where [UserID] like 's%' and len([UserID]) = 8";
+                    new SqlDataAdapter(command).Fill(table);
+                    Students = table.Select().Select(x =>
+                        new Student((string)x["UserID"], (string)x["Name"], (string)x["Email"])).ToList();
 
-                table.Clear();
-                // Retrieve Room List
-                command.CommandText = "select * from Room";
-                new SqlDataAdapter(command).Fill(table);
-                Rooms = table.Select().Select(x => (string)x["RoomID"]).ToList();
-                //Rooms = table.Select().Select(x => new Room((string)x["RoomID"])).ToList();
-                //Rooms = new List<string>() { "A", "B", "C", "D"};
+                    table.Clear();
+                    // Retrieve Room List
+                    command.CommandText = "select * from Room";
+                    new SqlDataAdapter(command).Fill(table);
+                    Rooms = table.Select().Select(x => (string)x["RoomID"]).ToList();
+                    //Rooms = table.Select().Select(x => new Room((string)x["RoomID"])).ToList();
+                    //Rooms = new List<string>() { "A", "B", "C", "D"};
 
-                table.Clear();
-                // Retrieve Slot List
-                command.CommandText = "select * from Slot";
-                new SqlDataAdapter(command).Fill(table);
-                if (table != null)
-                    Slots = table.Select().Select(x =>
-                        new Slot((string)x["RoomID"], (DateTime)x["StartTime"], (string)x["StaffID"])).ToList();
-                else
-                    Slots = new List<Slot>();
+                    table.Clear();
+                    // Retrieve Slot List
+                    command.CommandText = "select * from Slot";
+                    new SqlDataAdapter(command).Fill(table);
+                    if (table != null)
+                        Slots = table.Select().Select(x =>
+                            new Slot((string)x["RoomID"], (DateTime)x["StartTime"], (string)x["StaffID"])).ToList();
+                    else
+                        Slots = new List<Slot>();
+                }
+                catch(SqlException se)
+                {
+                    Console.WriteLine("SQL Exception: {0}", se.Message);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Exception: {0}", e.Message);
+                }
             }
         }
 
@@ -71,17 +83,28 @@ namespace Assignment1
         {
             using (var connection = new SqlConnection(Program.ConnectionString))
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                var command = connection.CreateCommand();
-                command.CommandText =
-                    "insert into Slot values (@roomID, @startTime, @staffID, null)";
-                command.Parameters.AddWithValue("roomID", slot.RoomID);
-                command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
-                command.Parameters.AddWithValue("staffID", slot.StaffID);
-                //command.Parameters.AddWithValue("studentID", slot.StudentID);
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                        "insert into Slot values (@roomID, @startTime, @staffID, null)";
+                    command.Parameters.AddWithValue("roomID", slot.RoomID);
+                    command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
+                    command.Parameters.AddWithValue("staffID", slot.StaffID);
+                    //command.Parameters.AddWithValue("studentID", slot.StudentID);
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
+                catch(SqlException se)
+                {
+                    Console.WriteLine("SQL Exception: {0}", se.Message);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Exception: {0}", e.Message);
+                }
             }
         }
 
@@ -89,15 +112,26 @@ namespace Assignment1
         {
             using (var connection = new SqlConnection(Program.ConnectionString))
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                var command = connection.CreateCommand();
-                command.CommandText =
-                    "delete from Slot where RoomID = @roomID and StartTime = @startTime";
-                command.Parameters.AddWithValue("roomID", slot.RoomID);
-                command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                        "delete from Slot where RoomID = @roomID and StartTime = @startTime";
+                    command.Parameters.AddWithValue("roomID", slot.RoomID);
+                    command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException se)
+                {
+                    Console.WriteLine("SQL Exception: {0}", se.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Exception: {0}", e.Message);
+                }
             }
         }
 
@@ -105,16 +139,27 @@ namespace Assignment1
         {
             using (var connection = new SqlConnection(Program.ConnectionString))
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
 
-                var command = connection.CreateCommand();
-                command.CommandText =
-                    "update Slot set BookedInStudentID = @studentID where RoomID = @roomID and StartTime = @startTime";
-                command.Parameters.AddWithValue("studentID", slot.StudentID);
-                command.Parameters.AddWithValue("roomID", slot.RoomID);
-                command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
+                    var command = connection.CreateCommand();
+                    command.CommandText =
+                        "update Slot set BookedInStudentID = @studentID where RoomID = @roomID and StartTime = @startTime";
+                    command.Parameters.AddWithValue("studentID", slot.StudentID);
+                    command.Parameters.AddWithValue("roomID", slot.RoomID);
+                    command.Parameters.AddWithValue("startTime", slot.SlotDateTime);
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException se)
+                {
+                    Console.WriteLine("SQL Exception: {0}", se.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Exception: {0}", e.Message);
+                }
             }
         }
     }
