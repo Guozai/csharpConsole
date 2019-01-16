@@ -16,11 +16,22 @@ namespace Assignment1
 
         public void StaffAvailability(string staffID, string dateString, List<Slot> slots)
         {
-            var date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            List<Slot> availabilities = slots.Where(x => x.SlotDateTime.Date == date && x.StaffID.Equals(staffID)).ToList();
-            List<Slot> sortedList = availabilities.OrderBy(x => x.SlotDateTime).ToList();
-            foreach (var slot in sortedList)
-                Console.WriteLine("\t{0,-15}{1,-12:HH:mm}{2:HH:mm}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
+            try
+            {
+                var date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                List<Slot> availabilities = slots.Where(x => x.SlotDateTime.Date == date && x.StaffID.Equals(staffID)).ToList();
+                List<Slot> sortedList = availabilities.OrderBy(x => x.SlotDateTime).ToList();
+                foreach (var slot in sortedList)
+                    Console.WriteLine("\t{0,-15}{1,-12:HH:mm}{2:HH:mm}", slot.RoomID, slot.SlotDateTime, slot.SlotDateTime.AddHours(1));
+            }
+            catch (NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
         }
 
         ///////////////////////// Student Functional Methods ////////////////////////////////
@@ -32,47 +43,69 @@ namespace Assignment1
 
         public bool MakeBooking(string name, string dateString, string time, string studentID, Database database)
         {
-            // If the student hasn't booked on the day
-            DateTime date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var count = database.Slots.Count(x => x.SlotDateTime.Date == date && x.StudentID == studentID);
-
-            if (count == 0)
+            try
             {
-                DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-                var slots = database.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
-                if (slots.Any())
+                // If the student hasn't booked on the day
+                DateTime date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                var count = database.Slots.Count(x => x.SlotDateTime.Date == date && x.StudentID == studentID);
+
+                if (count == 0)
                 {
-                    foreach (var slot in slots)
+                    DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                    var slots = database.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
+                    if (slots.Any())
                     {
-                        if (slot.StudentID == null)
+                        foreach (var slot in slots)
                         {
-                            slot.StudentID = studentID;
-                            // Update the slot in database
-                            database.Update(slot);
-                            return true;
+                            if (slot.StudentID == null)
+                            {
+                                slot.StudentID = studentID;
+                                // Update the slot in database
+                                database.Update(slot);
+                                return true;
+                            }
                         }
                     }
                 }
+            }
+            catch (NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
             }
             return false;
         }
 
         public bool CancelBooking(string name, string dateString, string time, Database database)
         {
-            DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-            var slots = database.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
-            if (slots.Any())
+            try
             {
-                foreach (var slot in database.Slots)
+                DateTime dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                var slots = database.Slots.Where(x => x.SlotDateTime == dateTime && x.RoomID.Equals(name)).ToList();
+                if (slots.Any())
                 {
-                    if (slot.SlotDateTime == dateTime && slot.RoomID.Equals(name))
+                    foreach (var slot in database.Slots)
                     {
-                        slot.StudentID = null;
-                        // Update the slot in databse
-                        database.Update(slot);
-                        return true;
+                        if (slot.SlotDateTime == dateTime && slot.RoomID.Equals(name))
+                        {
+                            slot.StudentID = null;
+                            // Update the slot in databse
+                            database.Update(slot);
+                            return true;
+                        }
                     }
                 }
+            }
+            catch (NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
             }
             return false;
         }
@@ -80,69 +113,102 @@ namespace Assignment1
         ///////////////////////// Slot Functional Methods ////////////////////////////////
         public void ListSlot(string input, List<Slot> databaseSlots)
         {
-            DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var slots = databaseSlots.Where(x => x.SlotDateTime.Date == date).OrderBy(x => x.RoomID).ToList();
-
-            if (slots.Any())
+            try
             {
-                foreach (var slot in slots)
+                DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                var slots = databaseSlots.Where(x => x.SlotDateTime.Date == date).OrderBy(x => x.RoomID).ToList();
+
+                if (slots.Any())
                 {
-                    Console.Write("\t{0,-15}{1,-15:HH:mm}{2,-15:HH:mm}{3,-15}", slot.RoomID, slot.SlotDateTime,
-                        slot.SlotDateTime.AddHours(1), slot.StaffID);
-                    if (slot.StudentID == null)
-                        Console.WriteLine("-");
-                    else
-                        Console.WriteLine(slot.StudentID);
+                    foreach (var slot in slots)
+                    {
+                        Console.Write("\t{0,-15}{1,-15:HH:mm}{2,-15:HH:mm}{3,-15}", slot.RoomID, slot.SlotDateTime,
+                            slot.SlotDateTime.AddHours(1), slot.StaffID);
+                        if (slot.StudentID == null)
+                            Console.WriteLine("-");
+                        else
+                            Console.WriteLine(slot.StudentID);
+                    }
                 }
+                else
+                    Console.WriteLine("\t<no slots>");
             }
-            else
-                Console.WriteLine("\t<no slots>");
+            catch (NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
         }
 
         public bool CreateSlot(string name, string dateString, string time, string staffID, Database database)
         {
-            // Parse the DateTime
-            var date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-
-            // Check the business rules
-            var countStaff = database.Slots.Count(x => x.SlotDateTime.Date == date && x.StaffID.Equals(staffID));
-            var countSlot = database.Slots.Count(x => x.SlotDateTime.Date == date && x.RoomID.Equals(name));
-
-            if (countStaff < 4 && countSlot < 2)
+            try
             {
-                // If slot doesn't exist
-                var count = database.Slots.Count(x => x.RoomID.Equals(name) && x.SlotDateTime == dateTime);
-                if (count == 0)
+                // Parse the DateTime
+                var date = DateTime.ParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                var dateTime = DateTime.ParseExact(dateString + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+
+                // Check the business rules
+                var countStaff = database.Slots.Count(x => x.SlotDateTime.Date == date && x.StaffID.Equals(staffID));
+                var countSlot = database.Slots.Count(x => x.SlotDateTime.Date == date && x.RoomID.Equals(name));
+
+                if (countStaff < 4 && countSlot < 2)
                 {
-                    // Create the Slot
-                    Slot slot = new Slot(name, dateTime, staffID);
-                    database.AddSlot(slot);
-                    // Add slot to database
-                    database.Add(slot);
-                    return true;
+                    // If slot doesn't exist
+                    var count = database.Slots.Count(x => x.RoomID.Equals(name) && x.SlotDateTime == dateTime);
+                    if (count == 0)
+                    {
+                        // Create the Slot
+                        Slot slot = new Slot(name, dateTime, staffID);
+                        database.AddSlot(slot);
+                        // Add slot to database
+                        database.Add(slot);
+                        return true;
+                    }
                 }
+            }
+            catch(NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
             }
             return false;
         }
 
         public bool RemoveSlot(string date, string time, Database database)
         {
-            // Parse the DateTime
-            DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
-            var slots = database.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
-            if (slots.Any())
+            try
             {
-                foreach (var slot in slots)
+                // Parse the DateTime
+                DateTime dateTime = DateTime.ParseExact(date + " " + time, "dd-MM-yyyy HH:mm", CultureInfo.InvariantCulture);
+                var slots = database.Slots.Where(x => x.SlotDateTime == dateTime).ToList();
+                if (slots.Any())
                 {
-                    if (slot.StudentID == null)
+                    foreach (var slot in slots)
                     {
-                        database.Slots.Remove(slot);
-                        // Delete slot from database
-                        database.Delete(slot);
-                        return true;
+                        if (slot.StudentID == null)
+                        {
+                            database.Slots.Remove(slot);
+                            // Delete slot from database
+                            database.Delete(slot);
+                            return true;
+                        }
                     }
                 }
+            }
+            catch (NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
             }
             return false;
         }
@@ -159,16 +225,27 @@ namespace Assignment1
 
         public void RoomAvailability(string input, List<Slot> databaseSlots, List<string> rooms)
         {
-            DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var slots = databaseSlots.Where(x => x.SlotDateTime.Date == date).ToList();
-            if (slots.Any())
+            try
             {
-                foreach (var room in rooms)
+                DateTime date = DateTime.ParseExact(input, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                var slots = databaseSlots.Where(x => x.SlotDateTime.Date == date).ToList();
+                if (slots.Any())
                 {
-                    var count = slots.Count(x => x.RoomID.Equals(room));
-                    if (count < 2)
-                        Console.WriteLine($"\t{room}");
+                    foreach (var room in rooms)
+                    {
+                        var count = slots.Count(x => x.RoomID.Equals(room));
+                        if (count < 2)
+                            Console.WriteLine($"\t{room}");
+                    }
                 }
+            }
+            catch (NullReferenceException nre)
+            {
+                Console.WriteLine("Null Reference Exception: {0}", nre.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
             }
         }
     }
